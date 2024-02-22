@@ -45,13 +45,16 @@
 #include <kdl/jntarray.hpp>
 #include <kdl/tree.hpp>
 #include <kdl_parser/kdl_parser.hpp>
+#include <rclcpp/logging.hpp>
 
 #include "controller_interface/controller_interface.hpp"
 #include "controller_interface/helpers.hpp"
 #include "geometry_msgs/msg/detail/pose_stamped__struct.hpp"
 #include "geometry_msgs/msg/detail/twist_stamped__struct.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
+#include "rclcpp/wait_for_message.hpp"
 #include "rclcpp_lifecycle/node_interfaces/lifecycle_node_interface.hpp"
+#include "std_msgs/msg/string.hpp"
 
 namespace cartesian_controller_base
 {
@@ -164,8 +167,27 @@ CartesianControllerBase::on_configure(const rclcpp_lifecycle::State & previous_s
   m_robot_description = get_node()->get_parameter("robot_description").as_string();
   if (m_robot_description.empty())
   {
-    RCLCPP_ERROR(get_node()->get_logger(), "robot_description is empty");
-    return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
+    // FIX
+    // auto sub = get_node()->create_subscription<std_msgs::msg::String>(
+    //   "/robot_description", 10,
+    //   [this](const std_msgs::msg::String::SharedPtr msg) { m_robot_description = msg->data; });
+    bool received_description = false;
+    std_msgs::msg::String rob_desc;
+    while (!received_description)
+    {
+      received_description = rclcpp::wait_for_message(
+        rob_desc, get_node()->shared_from_this(), "/robot_description", std::chrono::seconds(1));
+      RCLCPP_INFO(get_node()->get_logger(), "still waiting for robot description");
+    }
+    // while (m_robot_description.empty())
+    // {
+    //   rclcpp::spin_some(get_node()->get_node_base_interface());
+    //   RCLCPP_INFO_THROTTLE(get_node()->get_logger(), *get_node()->get_clock(), 1000,
+    //                        "Waiting for robot_description");
+    // }
+    RCLCPP_INFO(get_node()->get_logger(), "Received robot_description from topic");
+    // RCLCPP_ERROR(get_node()->get_logger(), "robot_description is empty");
+    // return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
   m_robot_base_link = get_node()->get_parameter("robot_base_link").as_string();
   if (m_robot_base_link.empty())
