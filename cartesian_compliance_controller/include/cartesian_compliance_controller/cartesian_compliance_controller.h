@@ -103,7 +103,7 @@ public:
   using MotionBase = cartesian_motion_controller::CartesianMotionController;
   using ForceBase = cartesian_force_controller::CartesianForceController;
 
-private:
+protected:
   /**
      * @brief Compute the net force of target wrench and stiffness-related pose offset
      *
