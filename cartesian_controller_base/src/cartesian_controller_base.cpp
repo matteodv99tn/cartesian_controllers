@@ -85,6 +85,7 @@ CartesianControllerBase::state_interface_configuration() const
   for (const auto & joint_name : m_joint_names)
   {
     conf.names.push_back(joint_name + "/position");
+    conf.names.push_back(joint_name + "/velocity");
   }
   return conf;
 }
@@ -171,14 +172,14 @@ CartesianControllerBase::on_configure(const rclcpp_lifecycle::State & previous_s
     // auto sub = get_node()->create_subscription<std_msgs::msg::String>(
     //   "/robot_description", 10,
     //   [this](const std_msgs::msg::String::SharedPtr msg) { m_robot_description = msg->data; });
-    bool received_description = false;
-    std_msgs::msg::String rob_desc;
-    while (!received_description)
-    {
-      received_description = rclcpp::wait_for_message(
-        rob_desc, get_node()->shared_from_this(), "/robot_description", std::chrono::seconds(1));
-      RCLCPP_INFO(get_node()->get_logger(), "still waiting for robot description");
-    }
+    // bool received_description = false;
+    // std_msgs::msg::String rob_desc;
+    // while (!received_description)
+    // {
+    //   received_description = rclcpp::wait_for_message(
+    //     rob_desc, get_node()->shared_from_this(), "/robot_description", std::chrono::seconds(1));
+    //   RCLCPP_INFO(get_node()->get_logger(), "still waiting for robot description");
+    // }
     // while (m_robot_description.empty())
     // {
     //   rclcpp::spin_some(get_node()->get_node_base_interface());
