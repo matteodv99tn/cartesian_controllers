@@ -181,7 +181,13 @@ controller_interface::return_type CartesianComplianceController::update()
 ctrl::Vector6D CartesianComplianceController::computeComplianceError()
 {
   ctrl::Vector6D tmp;
-
+  tmp[0] = get_node()->get_parameter("stiffness.trans_x").as_double();
+  tmp[1] = get_node()->get_parameter("stiffness.trans_y").as_double();
+  tmp[2] = get_node()->get_parameter("stiffness.trans_z").as_double();
+  tmp[3] = get_node()->get_parameter("stiffness.rot_x").as_double();
+  tmp[4] = get_node()->get_parameter("stiffness.rot_y").as_double();
+  tmp[5] = get_node()->get_parameter("stiffness.rot_z").as_double();
+  
   m_stiffness = tmp.asDiagonal();
 
   ctrl::Vector6D net_force =
